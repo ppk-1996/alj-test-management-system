@@ -3,10 +3,16 @@
 namespace App\Http\Controllers;
 
 use App\Question;
+use App\Answer;
 use Illuminate\Http\Request;
 
-class QuestionsController extends Controller
+class AnswersController extends Controller
 {
+    public function __construct()
+    {
+        $this->middleware('auth');
+    }
+
     /**
      * Display a listing of the resource.
      *
@@ -14,8 +20,11 @@ class QuestionsController extends Controller
      */
     public function index()
     {
-        $qs = Question::all();
-        return view('questions.index')->with('qs', $qs);
+        $questions = Question::all();
+         $user = auth()->user()->id;
+         $answers= Answer::where('user_id',$user)->get();
+
+        return view('answers.index')->with(['qs' => $questions, 'answers' => $answers]);
     }
 
     /**
@@ -25,7 +34,7 @@ class QuestionsController extends Controller
      */
     public function create()
     {
-        return view('questions.create');
+        return view('answers.create');
     }
 
     /**
@@ -33,31 +42,22 @@ class QuestionsController extends Controller
      *
      * @param \Illuminate\Http\Request $request
      * @return \Illuminate\Http\Response
-     * @throws \Illuminate\Validation\ValidationException
      */
     public function store(Request $request)
     {
-        $this->validate($request, [
-            'q_no' =>'required',
-            'question_text' => 'required'
-        ]);
-        $question = new Question();
-        $question->question_text = $request->input('question_text');
-        $question->q_no = $request->input('q_no');
-        $question->save();
-        return redirect(route('questions.index'));
+        //
     }
+
     /**
-     * Show the question in detail.
+     * Display the specified resource.
      *
      * @param int $id
      * @return \Illuminate\Http\Response
      */
-    public function show(Question $question)
+    public function show($id)
     {
-        return view('questions.show')->with('q',$question);
+        //
     }
-
 
     /**
      * Show the form for editing the specified resource.
@@ -65,9 +65,9 @@ class QuestionsController extends Controller
      * @param int $id
      * @return \Illuminate\Http\Response
      */
-    public function edit(Question $question)
+    public function edit($id)
     {
-        return view('questions.edit')->with('q',$question);
+        return view('answers.edit');
     }
 
     /**
@@ -88,9 +88,8 @@ class QuestionsController extends Controller
      * @param int $id
      * @return \Illuminate\Http\Response
      */
-    public function destroy(Question $question)
+    public function destroy($id)
     {
-        $question->delete();
-        return redirect(route('questions.index'));
+        //
     }
 }

@@ -27,13 +27,12 @@ class LoginController extends Controller
      *
      * @var string
      */
-    //protected $redirectTo = RouteServiceProvider::HOME;
-public function redirectTo(){
-    if(Gate::denies('manage-users')){
+   // protected $redirectTo = RouteServiceProvider::INDEX;
+    public function redirectTo(){
+        session()->flash('success','Log in successful.');
         return RouteServiceProvider::HOME;
-    }
-    return RouteServiceProvider::ADMIN;
 }
+
     /**
      * Create a new controller instance.
      *

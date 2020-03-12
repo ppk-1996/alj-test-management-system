@@ -12,29 +12,32 @@
 
                         <table class="table table-striped">
                             <thead>
-                            <th>ID</th>
+                            <th>No.</th>
                             <th>Question</th>
                             <th class="text-center">Action</th>
                             </thead>
+
                             @foreach($qs as $q)
                                 <tbody>
-                                <td>{{$q->id}}</td>
+                                <td>Q{{$q->q_no}}</td>
                                 <td>{!!
                                 Str::limit(strip_tags($q->question_text ),300)
 
                                 !!}</td>
                                 <td style=" display: flex; flex-direction: column;  ">
-<a href="{{route('questions.show',$q)}}" class="btn btn-success btn-sm">Show</a>
+                                    <a href="{{route('questions.show',$q)}}" class="btn btn-success btn-sm">Show</a>
                                     <a href="{{route('questions.edit',$q)}}" class="btn btn-primary btn-sm">Edit</a>
 
-                                        <form action="{{route('questions.edit',$q)}}" method="POST">
-                                            @csrf
-                                            @method('DELETE')
-                                            <button type="submit" class="btn btn-warning btn-sm">Delete</button>
-                                        </form>
+                                    <form action="{{route('questions.destroy',$q)}}" method="POST"
+                                          onsubmit="return confirm('Do you really want to delete this question?')">
+                                        @csrf
+                                        @method('DELETE')
+                                        <button type="submit" class="btn btn-warning btn-sm" >Delete</button>
+                                    </form>
 
                                 </td>
                                 </tbody>
+
                             @endforeach
                         </table>
                     </div>

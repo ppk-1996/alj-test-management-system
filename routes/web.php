@@ -20,10 +20,9 @@ Route::get('/', function () {
 
 Auth::routes();
 
-Route::get('/home', 'HomeController@index')->name('home');
-
-Route::name('admin.')->middleware('can:manage-users')->group(function(){
-    Route::resource('admin/users','Admin\UsersController')->except(['create','show','store']);
+Route::name('admin.')->middleware('can:manage-users')->group(function () {
+    Route::resource('admin/users', 'Admin\UsersController')->except(['create', 'show', 'store']);
 });
 
-Route::resource('/admin/questions','QuestionsController');
+Route::resource('/admin/questions', 'QuestionsController')->middleware('can:manage-questions');
+Route::resource('/answers', 'AnswersController');
