@@ -18,28 +18,30 @@
                             <th class="text-center">Action</th>
                             </thead>
 
-                            @foreach($qs as $q)
+                            @foreach($questions as $question)
                                 <tbody>
-                                <td>Q{{$q->q_no}}</td>
+                                <td>Q{{$question->q_no}}</td>
                                 <td>{!!
-                                Str::limit(strip_tags($q->question_text ),30)
+                                Str::limit(strip_tags($question->question_text ),30)
                                 !!}</td>
                                 <td>
-                                    <?php $hasAnswer=$answers->where('question_id',$q->id)->pluck('answer_text')->first();
-                                    $answer_id = $answers->where('question_id',$q->id)->pluck('id')->first();
+                                    <?php
+                                    $ans = $answers->where('question_id', $question->id)->first();
                                     ?>
-                                    @if($hasAnswer)
-                                            <p class="text-success">Answer Submitted</p>
-                                        @else
+                                    @if($ans)
+                                        <p class="text-success">Answer Submitted</p>
+                                    @else
                                         <p class="text-danger">Answer not submitted yet</p>
                                     @endif
                                 </td>
                                 <td style=" display: flex; flex-direction: column;  ">
-                                    @if($hasAnswer)
-                                        <a href="{{route('answers.edit',$answer_id)}}" class="btn btn-primary btn-sm">Edit</a>
+                                    @if($ans)
+                                        <a href="{{route('test.edit',['question'=>$question,'answer'=>$ans])}}"
+                                           class="btn btn-primary btn-sm">Edit Answer</a>
 
                                     @else
-                                        <a href="{{route('answers.create')}}" class="btn btn-success btn-sm">Answer</a>
+                                        <a href="{{route('test.show',$question)}}"
+                                           class="btn btn-success btn-sm">Answer Q{{$question->q_no}}</a>
                                     @endif
 
 

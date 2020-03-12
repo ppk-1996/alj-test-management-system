@@ -21,16 +21,17 @@
                                 <td>{{$user->email}}</td>
                                 <td>{{implode(', ',$user->roles->pluck('name')->toArray()) }}</td>
                                 <td style="display: flex; justify-content: space-around;">
-
-                                    <a href="{{route('admin.users.edit',$user)}}" class="btn btn-primary btn-sm">Edit</a>
-                                    @can('delete-users')
-                                    <form action="{{route('admin.users.destroy',$user)}}" method="POST">
-                                        @csrf
-                                        @method('DELETE')
-                                        <button type="submit" class="btn btn-warning btn-sm">Delete</button>
-                                    </form>
-@endcan
-
+                                    <a href="{{route('admin.users.show',$user)}}"
+                                       class="btn btn-primary btn-sm">Show</a>
+                                    <a href="{{route('admin.users.edit',$user)}}"
+                                       class="btn btn-primary btn-sm">Edit</a>
+                                    @can('manage-users')
+                                        <form action="{{route('admin.users.destroy',$user)}}" method="POST">
+                                            @csrf
+                                            @method('DELETE')
+                                            <button type="submit" class="btn btn-warning btn-sm">Delete</button>
+                                        </form>
+                                    @endcan
 
 
                                 </td>

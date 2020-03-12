@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Admin;
 
+use App\Answer;
 use App\Http\Controllers\Controller;
 use App\Role;
 use App\User;
@@ -27,9 +28,12 @@ class UsersController extends Controller
      *
      * @return \Illuminate\Http\Response
      */
-    public function create()
+    public function show(User $user)
     {
-        //
+        $answers = Answer::where('user_id',$user->id)
+                            ->orderBy('question_id')->get();
+
+        return view('admin.show')->with(['user'=>$user,'answers'=>$answers]);
     }
 
     /*

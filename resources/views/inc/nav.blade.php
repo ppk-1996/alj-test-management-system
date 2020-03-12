@@ -41,7 +41,7 @@
                                 {{ __('Logout') }}
                             </a>
 
-                                <a class="dropdown-item" href="{{route('answers.index')}}">
+                                <a class="dropdown-item" href="{{route('test.index')}}">
                                     Test Progress
                                 </a>
 

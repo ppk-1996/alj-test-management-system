@@ -79,7 +79,15 @@ class QuestionsController extends Controller
      */
     public function update(Request $request, $id)
     {
-        //
+        $this->validate($request, [
+            'q_no' =>'required',
+            'question_text' => 'required'
+        ]);
+        $question = Question::find($id);
+        $question->question_text = $request->input('question_text');
+        $question->q_no = $request->input('q_no');
+        $question->save();
+        return redirect(route('questions.index'));
     }
 
     /**
@@ -93,4 +101,6 @@ class QuestionsController extends Controller
         $question->delete();
         return redirect(route('questions.index'));
     }
+
+
 }

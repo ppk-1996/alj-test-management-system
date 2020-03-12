@@ -8,7 +8,7 @@
         <div class="button-group pt-2">
             @auth
                 <h3>You can take our programming interview test here.</h3>
-                <a href="{{route('answers.index')}}" class="btn btn-success">Take Test</a>
+                <a href="{{route('test.index')}}" class="btn btn-success">Take Test</a>
 
             @endauth
             @guest()
