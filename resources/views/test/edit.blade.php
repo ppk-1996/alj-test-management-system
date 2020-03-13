@@ -4,6 +4,7 @@
     <h3>Q{{$question->q_no}}</h3>
     <p>{!! $question->question_text !!}</p>
     <a href="{{route('test.example.show',$question)}}" class="btn btn-outline-dark">See Example</a>
+    
     <form method="post" action="{{route('test.update',$answer->id)}}">
         @csrf
         @method('PUT')

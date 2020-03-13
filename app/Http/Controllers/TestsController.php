@@ -4,7 +4,9 @@ namespace App\Http\Controllers;
 
 use App\Answer;
 use App\Question;
+use Hamcrest\Core\Set;
 use Illuminate\Http\Request;
+use PhpParser\Node\Expr\Array_;
 
 class TestsController extends Controller
 {
@@ -64,57 +66,245 @@ class TestsController extends Controller
     public function calculateExample(Request $request, Question $question)
     {
         $qno = $question->q_no;
-        $output = "ERROR IN FORMATTING THE FILE FOR Q".$qno;
+        $output = "Sorry, this question does not have example yet.";
         $myfile = fopen($request->file('textfile'), "r") or die("Unable to open file!");
-
-
+        //            $code = $question->example;
+//            eval($code);
         if ($qno == 1) {
             $input = intval(fgets($myfile));
-            if ($input == 0) {
-                $output = "Your file has wrong format. It should be integer";
+            $output = sprintf('%03d', $input);
+        }
+        if ($qno == 2) {
+            $biggest = intval(fgets($myfile));
+            $smallest = intval(fgets($myfile));
+            rewind($myfile);
+
+            while (!feof($myfile)) {
+                $input = intval(fgets($myfile));
+                if ($input > $biggest) {
+                    $biggest = $input;
+
+                } elseif ($input < $smallest) {
+                    $smallest = $input;
+                }
+            }
+            $output = $biggest . "\n" . $smallest;
+        }
+        if ($qno == 3) {
+            $wcount = 0;
+            while (!feof($myfile)) {
+                $input = fgetc($myfile);
+                if ($input == "W")
+                    $wcount++;
+
+            }
+            if ($wcount >= 5) {
+                $output = "OK";
             } else {
-                $output = sprintf('%03d', $input);
+                $output = "NG";
+            }
+        }
+        if ($qno == 4) {
+            $input = "";
+            while (!feof($myfile)) {
+                $input .= fgets($myfile);
+            }
+            $inputArr = preg_split("/\s+/", $input, 0, PREG_SPLIT_NO_EMPTY);
+            $H = $inputArr[0];
+            $W = $inputArr[1];
+            $output = "";
+            $j = 1;
+            for ($i = 2; $i < sizeof($inputArr); $i++) {
+
+                if ($inputArr[$i] >= 128) {
+                    $output .= "1";
+                } else {
+                    $output .= "0";
+                }
+                if ($j % $W == 0) {
+                    $output .= "\n";
+                } else {
+                    $output .= " ";
+                }
+                $j++;
             }
         }
 
-        elseif($qno==2){
-            $biggest=intval(fgets($myfile));
-            $smallest=intval(fgets($myfile));
-            rewind($myfile);
+        if ($qno == 5) {
+            $tags = fgets($myfile);
+            $tagsArr = preg_split('/\s+/', $tags);
+            $firstTag = $tagsArr[0];
+            $secondTag = $tagsArr[1];
 
-            while(!feof($myfile)) {
-                $input=intval(fgets($myfile));
-                if($input>$biggest){
-                    $biggest=$input;
-                    echo $biggest;
-                }elseif ($input<$smallest){
-                    $smallest=$input;
-                    echo $smallest;
+            $content = fgets($myfile);
+            $output = $content;
+            $dataArr = $this->getBetween($content, $firstTag, $secondTag);
+            $output = "";
+            foreach ($dataArr as $data) {
+                if ($data == '') {
+                    $output .= "<blank>" . "\n";
+                } else {
+                    $output .= $data . "\n";
+                }
+
+            }
+        }
+        if ($qno == 6) {
+            $input = fgets($myfile);
+            $durationsArr = explode(' ', $input);
+            $a = intval($durationsArr[0]);
+            $b = intval($durationsArr[1]);
+            $c = intval($durationsArr[2]);
+            $depFreq = intval(fgets($myfile));
+            $dep = Array();
+            $dep_min = Array();
+            for ($i = 0; $i < $depFreq; $i++) {
+                $dep[$i] = explode(' ', fgets($myfile));
+                $dep_min[$i] = intval($dep[$i][0]) * 60 + intval($dep[$i][1]);
+            }
+            $limit = 539;
+            //Now we got a,b,c and all departure times in minutes
+            $bToC = $b + $c;
+            for ($i = sizeof($dep_min) - 1; $i >= 0; $i--) {
+                if ($dep_min[$i] + $bToC < $limit) {
+                    $chosenOne = $dep_min[$i];
+                    $leaveTime = $chosenOne - $a;
+                    $hour = floor($leaveTime / 60);
+                    $minute = ($leaveTime % 60);
+                    $output = sprintf('%02d:%02d', $hour, $minute);
+                    break;
+                }
+            }
+        }
+        if ($qno == 7) {
+            $output = "";
+            $inputArr = explode(' ', fgets($myfile));
+            $H = $inputArr[0];
+            $W = $inputArr[1];
+            $N = $inputArr[2];
+            $container = Array();
+            for ($i = 0; $i < $H; $i++) {
+                for ($j = 0; $j < $W; $j++) {
+                    $container[$i][$j] = ".";
                 }
             }
 
+            $inputArr = Array();
+            while (!feof($myfile)) {
+                array_push($inputArr, explode(' ', fgets($myfile)));
+            }
+            $blocks = Array();
+            foreach ($inputArr as $arr) {
 
-            $output=$biggest."<br>".$smallest;
+                array_push($blocks, new Block($arr[0], $arr[1], $arr[2]));
+            }
+            foreach ($blocks as $b) {
+
+                $h = $b->getHeight();
+                $w = $b->getWidth();
+                $x = $b->getXpos();
+                $y = $b->findConflictY($container) - 1;
+
+                $x_start = $x;
+                $x_end = $x + $w;
+
+                $y_start = $y;
+                $y_end = $y - $h;
+
+                for ($x_axis = $x_start; $x_axis < $x_end; $x_axis++) {
+                    for ($y_axis = $y_start; $y_axis > $y_end; $y_axis--) {
+                        $container[$y_axis][$x_axis] = '#';
+                    }
+                }
+            }
+
+            for ($i = 0; $i < $H; $i++) {
+                for ($j = 0; $j < $W; $j++) {
+
+                    $output .= $container[$i][$j];
+                }
+                $output .= "\n";
+            }
+
+        }
+        if($qno==8){
 
         }
 
-
-
-
-
-
-
-
-
-
-
-
-
         fclose($myfile);
-
-
-        return view('test.calculated')->with('output', $output);
+        return view('test.calculated')->with(['output' => $output, 'question' => $question]);
     }
 
+    function getBetween($content, $start, $end)
+    {
+        $stringArr = explode($start, $content);
+        $result = Array();
+        foreach ($stringArr as $string) {
+            $pos = strpos($string, $end);
+            if ($pos !== false) {
+                $result[] = substr($string, 0, $pos);
+            }
+        }
+        return $result;
+    }
+}
+
+class Block
+{
+    protected $height, $width, $xpos;
+
+    public function __construct($h, $w, $x)
+    {
+        $this->height = intval($h);
+        $this->width = intval($w);
+        $this->xpos = intval($x);
+    }
+
+    /**
+     * @return integer
+     */
+    public function getHeight()
+    {
+        return $this->height;
+    }
+
+    /**
+     * @return integer
+     */
+    public function getWidth()
+    {
+        return $this->width;
+    }
+
+    /**
+     * @return integer
+     */
+    public function getXpos()
+    {
+        return $this->xpos;
+    }
+
+    /**
+     * @param $container
+     * @return int
+     */
+    public function findConflictY(Array $container)
+    {
+        $x_start = $this->xpos;
+        $x_end = $this->xpos + $this->width;
+        $y_end = sizeof($container);
+
+
+        for ($y = 0; $y < $y_end; $y++) {
+
+            for ($x = $x_start; $x < $x_end; $x++) {
+                if ($container[$y][$x] == '#') {
+                    return $y;
+                }
+            }
+        }
+
+        return $y;
+    }
 
 }

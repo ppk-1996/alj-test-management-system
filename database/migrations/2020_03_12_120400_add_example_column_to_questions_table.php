@@ -14,7 +14,7 @@ class AddExampleColumnToQuestionsTable extends Migration
     public function up()
     {
         Schema::table('questions', function (Blueprint $table) {
-            $table->mediumText('example')->default('no example available');
+            $table->mediumText('example')->default('$output = "Sorry, this question does not have example yet.";');
               });
     }
 
