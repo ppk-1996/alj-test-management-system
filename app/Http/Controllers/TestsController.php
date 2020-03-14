@@ -6,6 +6,7 @@ use App\Answer;
 use App\Question;
 use Hamcrest\Core\Set;
 use Illuminate\Http\Request;
+use Illuminate\Support\Arr;
 use PhpParser\Node\Expr\Array_;
 
 class TestsController extends Controller
@@ -227,8 +228,41 @@ class TestsController extends Controller
             }
 
         }
-        if($qno==8){
+        if ($qno == 8) {
+            $inputArr = explode(' ', fgets($myfile));
+            $highligted = Array();
+            $removeHL = false;
+            while (!feof($myfile)) {
+                $inputArr = explode(' ', fgets($myfile));
+                $startPos = intval($inputArr[0]);
+                $endPos = intval($inputArr[1]);
+                for ($i = $startPos; $i <= $endPos; $i++) {
 
+                    if (in_array($i, $highligted)) {
+                        $removeHL = true;
+                    } else {
+                        $removeHL = false;
+                        break;
+                    }
+
+                }
+                for ($i = $startPos; $i <= $endPos; $i++) {
+                    if (!$removeHL) {
+
+                        array_push($highligted, $i);
+                        $highligted = array_unique($highligted);
+                    } else {
+
+                        if (($key = array_search($i, $highligted)) !== false) {
+                            unset($highligted[$key]);
+                        }
+                    }
+                }
+
+
+            }
+
+            $output = sizeof($highligted);
         }
 
         fclose($myfile);
