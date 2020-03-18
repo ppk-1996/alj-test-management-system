@@ -77,6 +77,7 @@ class TestsController extends Controller
         }
         if ($qno == 2) {
             $biggest = intval(fgets($myfile));
+            rewind($myfile);
             $smallest = intval(fgets($myfile));
             rewind($myfile);
 
@@ -106,48 +107,49 @@ class TestsController extends Controller
             }
         }
         if ($qno == 4) {
-            $input = "";
-            while (!feof($myfile)) {
-                $input .= fgets($myfile);
-            }
-            $inputArr = preg_split("/\s+/", $input, 0, PREG_SPLIT_NO_EMPTY);
-            $H = $inputArr[0];
-            $W = $inputArr[1];
+            $input = fgets($myfile);
             $output = "";
-            $j = 1;
-            for ($i = 2; $i < sizeof($inputArr); $i++) {
+            while (!feof($myfile)) {
+                $inputArr = explode(' ', fgets($myfile));
 
-                if ($inputArr[$i] >= 128) {
-                    $output .= "1";
-                } else {
-                    $output .= "0";
+                for ($i = 0; $i < sizeof($inputArr); $i++) {
+
+                    if ($inputArr[$i] >= 128) {
+                        $output .= "1";
+                    } else {
+                        $output .= "0";
+                    }
+                    if ($i != sizeof($inputArr) - 1) {
+                        $output .= " ";
+                    }
                 }
-                if ($j % $W == 0) {
-                    $output .= "\n";
-                } else {
-                    $output .= " ";
-                }
-                $j++;
+                $output .= "\n";
             }
         }
 
         if ($qno == 5) {
+            $output = "";
             $tags = fgets($myfile);
             $tagsArr = preg_split('/\s+/', $tags);
+            //$tagsArr = explode(' ', $tags);
             $firstTag = $tagsArr[0];
             $secondTag = $tagsArr[1];
-
             $content = fgets($myfile);
-            $output = $content;
-            $dataArr = $this->getBetween($content, $firstTag, $secondTag);
-            $output = "";
-            foreach ($dataArr as $data) {
+
+            $stringArr = explode($firstTag, $content);
+            $result = Array();
+            foreach ($stringArr as $string) {
+                $pos = strpos($string, $secondTag);
+                if ($pos !== false) {
+                    $result[] = substr($string, 0, $pos);
+                }
+            }
+            foreach ($result as $data) {
                 if ($data == '') {
                     $output .= "<blank>" . "\n";
                 } else {
                     $output .= $data . "\n";
                 }
-
             }
         }
         if ($qno == 6) {
@@ -269,18 +271,7 @@ class TestsController extends Controller
         return view('test.calculated')->with(['output' => $output, 'question' => $question]);
     }
 
-    function getBetween($content, $start, $end)
-    {
-        $stringArr = explode($start, $content);
-        $result = Array();
-        foreach ($stringArr as $string) {
-            $pos = strpos($string, $end);
-            if ($pos !== false) {
-                $result[] = substr($string, 0, $pos);
-            }
-        }
-        return $result;
-    }
+
 }
 
 class Block
