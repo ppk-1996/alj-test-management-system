@@ -16,6 +16,8 @@ class CreateQuestionsTable extends Migration
         Schema::create('questions', function (Blueprint $table) {
             $table->id();
             $table->mediumText('question_text');
+            $table->integer('q_no');
+            $table->mediumText('example')->default('$output = "Sorry, this question does not have example yet.";');
             $table->timestamps();
         });
     }
