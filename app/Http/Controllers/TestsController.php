@@ -8,6 +8,8 @@ use Hamcrest\Core\Set;
 use Illuminate\Http\Request;
 use Illuminate\Support\Arr;
 use PhpParser\Node\Expr\Array_;
+use stdClass;
+use Symfony\Component\Console\Input\Input;
 
 class TestsController extends Controller
 {
@@ -42,7 +44,6 @@ class TestsController extends Controller
         $answer->user_id = auth()->user()->id;
         $answer->save();
         return redirect(route('test.index'));
-
     }
 
     public function update(Request $request, $id)
@@ -70,7 +71,7 @@ class TestsController extends Controller
         $output = "Sorry, this question does not have example yet.";
         $myfile = fopen($request->file('textfile'), "r") or die("Unable to open file!");
         //            $code = $question->example;
-//            eval($code);
+        //            eval($code);
         if ($qno == 1) {
             $input = intval(fgets($myfile));
             $output = sprintf('%03d', $input);
@@ -85,7 +86,6 @@ class TestsController extends Controller
                 $input = intval(fgets($myfile));
                 if ($input > $biggest) {
                     $biggest = $input;
-
                 } elseif ($input < $smallest) {
                     $smallest = $input;
                 }
@@ -98,7 +98,6 @@ class TestsController extends Controller
                 $input = fgetc($myfile);
                 if ($input == "W")
                     $wcount++;
-
             }
             if ($wcount >= 5) {
                 $output = "OK";
@@ -137,7 +136,7 @@ class TestsController extends Controller
             $content = fgets($myfile);
 
             $stringArr = explode($firstTag, $content);
-            $result = Array();
+            $result = array();
             foreach ($stringArr as $string) {
                 $pos = strpos($string, $secondTag);
                 if ($pos !== false) {
@@ -159,8 +158,8 @@ class TestsController extends Controller
             $b = intval($durationsArr[1]);
             $c = intval($durationsArr[2]);
             $depFreq = intval(fgets($myfile));
-            $dep = Array();
-            $dep_min = Array();
+            $dep = array();
+            $dep_min = array();
             for ($i = 0; $i < $depFreq; $i++) {
                 $dep[$i] = explode(' ', fgets($myfile));
                 $dep_min[$i] = intval($dep[$i][0]) * 60 + intval($dep[$i][1]);
@@ -185,18 +184,18 @@ class TestsController extends Controller
             $H = $inputArr[0];
             $W = $inputArr[1];
             $N = $inputArr[2];
-            $container = Array();
+            $container = array();
             for ($i = 0; $i < $H; $i++) {
                 for ($j = 0; $j < $W; $j++) {
                     $container[$i][$j] = ".";
                 }
             }
 
-            $inputArr = Array();
+            $inputArr = array();
             while (!feof($myfile)) {
                 array_push($inputArr, explode(' ', fgets($myfile)));
             }
-            $blocks = Array();
+            $blocks = array();
             foreach ($inputArr as $arr) {
 
                 array_push($blocks, new Block($arr[0], $arr[1], $arr[2]));
@@ -228,11 +227,10 @@ class TestsController extends Controller
                 }
                 $output .= "\n";
             }
-
         }
         if ($qno == 8) {
             $inputArr = explode(' ', fgets($myfile));
-            $highligted = Array();
+            $highligted = array();
             $removeHL = false;
             while (!feof($myfile)) {
                 $inputArr = explode(' ', fgets($myfile));
@@ -246,7 +244,6 @@ class TestsController extends Controller
                         $removeHL = false;
                         break;
                     }
-
                 }
                 for ($i = $startPos; $i <= $endPos; $i++) {
                     if (!$removeHL) {
@@ -260,18 +257,74 @@ class TestsController extends Controller
                         }
                     }
                 }
-
-
             }
 
             $output = sizeof($highligted);
         }
 
+
+        if ($qno == 9) {
+
+            $stack = array();
+            $values = array(
+                ')' => '(',
+                '}' => '{',
+                ']' => '['
+            );
+            $openP = array('(', '{', '[');
+
+            $closeP = array(')', '}', ']');
+
+            $goodP = true;
+            $input = fgets($myfile);
+
+            $inputArr = str_split($input);
+
+            foreach ($inputArr as $p) {
+
+                if (in_array($p, $openP)) {
+                    array_push($stack, $p);
+                } elseif (in_array($p, $closeP)) {
+                    if (end($stack) == $values[$p]) {
+                        array_pop($stack);
+                    } else {
+                        $goodP = false;
+                        break;
+                    }
+                }
+            }
+            if ($goodP) {
+                $output = "true";
+            } else {
+                $output = "false";
+            }
+        }
+        if($qno==10){
+            $string=fgets($myfile);
+            $output=ucwords($string);
+        }
+        if($qno==11){
+            $inputArr=explode(' ',fgets($myfile));
+            $n=$inputArr[0];
+            $p=$inputArr[1];
+            $total=0;
+            $output=-1;
+            $digits=str_split((string)$n);
+            foreach($digits as $d){
+                $total+=pow(intval($d),intval($p));
+                $p++;
+            }
+            if($total%$n==0){
+                $output=$total/$n;
+              }
+              
+        }
+
+
+
         fclose($myfile);
         return view('test.calculated')->with(['output' => $output, 'question' => $question]);
     }
-
-
 }
 
 class Block
@@ -313,7 +366,7 @@ class Block
      * @param $container
      * @return int
      */
-    public function findConflictY(Array $container)
+    public function findConflictY(array $container)
     {
         $x_start = $this->xpos;
         $x_end = $this->xpos + $this->width;
@@ -331,5 +384,4 @@ class Block
 
         return $y;
     }
-
 }
