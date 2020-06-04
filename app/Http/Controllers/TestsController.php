@@ -319,6 +319,10 @@ class TestsController extends Controller
               }
               
         }
+        if($qno==12){
+           $current_user= Auth::user();
+           
+        }
 
 
 
